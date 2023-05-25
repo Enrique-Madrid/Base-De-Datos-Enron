@@ -11,6 +11,11 @@ import (
 
 func main() {
 
+	if len(os.Args) != 4 {
+		log.Println("\x1b[31;1mIncorrect number of arguments: indexer <directory> <username> <password>\x1b[0m")
+		return
+	}
+
 	// Grab the first argument as the directory to walk (e.g. "../../enron_mail_20110402/maildir")
 	directoryToWalk := os.Args[1]
 	username := os.Args[2]
