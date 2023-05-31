@@ -18,6 +18,8 @@ func main() {
 		return
 	}
 
+	log.Println("\x1b[32;1mSuccefully opened!! \x1b[0m")
+
 	username := os.Args[1]
 	password := os.Args[2]
 
@@ -33,13 +35,14 @@ func main() {
 	r.Use(middleware.Timeout(60 * time.Second))
 
 	corsOptions := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://127.0.0.1:5173"}, // Agrega aquí el origen de tu aplicación frontend
+		AllowedOrigins: []string{"http://127.0.0.1:5173"},
 	})
 	r.Use(corsOptions.Handler)
 
+	// * Routes to search emails of the user
 	r.Route("/search", func(r chi.Router) {
 		// Subrouters:
-		r.Route("/{index}/{searchTerm}", func(r chi.Router) {
+		r.Route("/{index}/{searchTerm}/{from}", func(r chi.Router) {
 			r.Get("/", searchHandler)
 		})
 	})
@@ -50,6 +53,7 @@ func main() {
 func searchHandler(w http.ResponseWriter, r *http.Request) {
 	index := chi.URLParam(r, "index")
 	term := chi.URLParam(r, "searchTerm")
-	email := zinc.Searcher(term, index)
+	from := chi.URLParam(r, "from")
+	email := zinc.Searcher(term, index, from)
 	w.Write(email)
 }

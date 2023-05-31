@@ -17,7 +17,7 @@
                 <h1 class="font-bold">Subject:</h1>
                 <p>{{ mail.subject }}</p>
             </div>
-            <h1 class="overflow-y-auto whitespace-pre-line">{{ mail.body }}</h1>
+            <h1 class="overflow-y-auto whitespace-pre-line text-wrap">{{ mail.body }}</h1>
         </div>
     </div>
 </template>
