@@ -76,12 +76,10 @@ func Indexer(json []byte) {
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("\033[31mError indexing mail:\033[0m", err)
-	} 
-	
+	}
+
 	if strings.Contains(string(body), "auth") {
 		log.Fatal("\033[31mError indexing mail (Invalid Credentials):\033[0m", string(body))
-	} else {
-		log.Println("\033[32mMail indexed successfully\033[0m")
 	}
 }
 
@@ -129,6 +127,6 @@ func Searcher(search_term string, index string, from string) []byte {
 	if err != nil {
 		log.Println("\033[31mError marshalling mail:\033[0m", err)
 	}
-	
+
 	return body
 }
