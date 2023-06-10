@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -13,15 +14,23 @@ import (
 )
 
 func main() {
-	if len(os.Args) != 3 {
-		log.Println("\x1b[31;1mIncorrect number of arguments: indexer <username> <password>\x1b[0m")
-		return
-	}
-
 	log.Println("\x1b[32;1mSuccefully opened!! \x1b[0m")
 
-	username := os.Args[1]
-	password := os.Args[2]
+	env := os.Environ()
+
+	for _, value := range env {
+		if strings.HasPrefix(value, "ZINC_") {
+			split := strings.Split(value, "=")
+			if len(split) != 2 {
+				log.Println("Error parsing environment variable: ", value)
+				return
+			}
+			os.Setenv(split[0], split[1])
+		}
+	}
+
+	username := os.Getenv("ZINC_FIRST_ADMIN_USER")
+	password := os.Getenv("ZINC_FIRST_ADMIN_PASSWORD")
 
 	zinc.AuthValues(username, password)
 

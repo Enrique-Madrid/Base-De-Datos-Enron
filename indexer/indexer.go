@@ -27,12 +27,15 @@ func main() {
 		if strings.HasPrefix(value, "ZINC_") {
 			split := strings.Split(value, "=")
 			if len(split) != 2 {
-				log.Println("Error parsing environment variable: ", value)
+				log.Println("Error parsing environment variable:", value)
 				return
 			}
 			os.Setenv(split[0], split[1])
 		}
 	}
+
+	username, _ := os.LookupEnv("ZINC_FIRST_ADMIN_USER")
+	password, _ := os.LookupEnv("ZINC_FIRST_ADMIN_PASSWORD")
 
 	// Start the profiler
 	f, err := os.Create("profile.prof")
@@ -52,27 +55,24 @@ func main() {
 
 	defer pprof.StopCPUProfile()
 
-	username := os.Getenv("ZINC_FIRST_ADMIN_USER")
-	password := os.Getenv("ZINC_FIRST_ADMIN_PASSWORD")
-
 	zinc.AuthValues(username, password)
 
-	mailArray := make([]zinc.Mail, 0)
-
+	// Todo: Make this concurrent
 	err = filepath.Walk(directoryToWalk, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			log.Println("Error walking directory: ", err)
-			return nil
+			log.Println("Error walking directory:", err)
+			return err
 		}
 		if !info.IsDir() {
 			mail, err := os.Open(path)
 			if err != nil {
-				log.Println("Error opening file: ", err)
+				log.Println("Error opening file:", err)
 				return nil
 			}
 			defer mail.Close()
 
 			scanner := bufio.NewScanner(mail)
+
 			var from, to, subject, body string
 			isBody := false
 
@@ -96,29 +96,34 @@ func main() {
 			}
 
 			// Split the path to get the category and the name of the file
-			sub_path := strings.Split(path, string(os.PathSeparator))
-			category := sub_path[len(sub_path)-2]
-			name := sub_path[len(sub_path)-3]
+			subPath := strings.Split(path, string(os.PathSeparator))
+			category := subPath[len(subPath)-2]
+			name := subPath[len(subPath)-3]
 
-			mailArray = append(mailArray, zinc.Mail{
+			mailArray := zinc.Mail{
 				Name:     name,
 				From:     from,
 				To:       to,
 				Subject:  subject,
 				Category: category,
 				Body:     body,
-			})
+			}
 
+			zinc.CreateJSON(mailArray)
 		}
 		return nil
 	})
 
 	if err != nil {
-		log.Println("Error walking directory: ", err)
+		log.Println("Error walking directory:", err)
 		return
 	}
 
-	zinc.CreateJSON(mailArray)
+	log.Println("\033[32mMails read successfully:\033[0m")
+	log.Println("\x1b[33mDatabase Bulk:\x1b[0m")
 
-	log.Println("\033[32mIndex finished\033[0m")
+	// * Send the JSON saved
+	zinc.SendJSON()
+
+	log.Println("\033[32mIndexing finished\033[0m")
 }

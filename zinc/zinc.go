@@ -21,13 +21,14 @@ type Auth struct {
 	User     string
 	Password string
 }
-
 type MailWithHeader struct {
-	Name string `json:"name"`
-	Mail Mail   `json:"mail"`
+	Name     string `json:"name"`
+	From     string `json:"mail.from"`
+	To       string `json:"mail.to"`
+	Subject  string `json:"mail.subject"`
+	Category string `json:"mail.category"`
+	Body     string `json:"mail.body"`
 }
-
-var auth Auth
 
 func AuthValues(username string, pass string) {
 	auth = Auth{
@@ -36,29 +37,35 @@ func AuthValues(username string, pass string) {
 	}
 }
 
-func CreateJSON(MailString []Mail) {
-	for _, mail := range MailString {
-		// Create a JSON string for each mail
-		jsonMail, err := json.Marshal(MailWithHeader{
-			Name: mail.Name,
-			Mail: Mail{
-				From:     mail.From,
-				To:       mail.To,
-				Subject:  mail.Subject,
-				Category: mail.Category,
-				Body:     mail.Body,
-			},
+var auth Auth
+var jsonToIndex []byte = nil
+var IndexTemplate []byte = []byte("\n" + `{"index" : { "_index" : "enron_database"}}` + "\n")
+var jsonMail []byte
+
+func CreateJSON(mail Mail) {
+	jsonMail, err := json.Marshal(
+		MailWithHeader{
+			Name:     mail.Name,
+			From:     mail.From,
+			To:       mail.To,
+			Subject:  mail.Subject,
+			Category: mail.Category,
+			Body:     mail.Body,
 		})
-		if err != nil {
-			log.Println("\033[31mError Marshaling:\033[0m", err)
-			continue
-		}
-		Indexer(jsonMail)
+	temp := append(IndexTemplate, jsonMail...)
+	jsonToIndex = append(jsonToIndex, temp...)
+
+	if err != nil {
+		log.Println("\033[31mError Marshaling:\033[0m", err)
 	}
 }
 
+func SendJSON() {
+	Indexer(jsonToIndex)
+}
+
 func Indexer(json []byte) {
-	req, err := http.NewRequest("POST", "http://localhost:4080/api/enron_database/_doc", strings.NewReader(string(json)))
+	req, err := http.NewRequest("POST", "http://localhost:4080/api/es/_bulk", strings.NewReader(string(json)))
 	if err != nil {
 		log.Println("\033[31mError:\033[0m", err)
 	}
