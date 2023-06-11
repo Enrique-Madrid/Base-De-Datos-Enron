@@ -58,14 +58,16 @@ const store = createStore({
         },
         loadMails({ commit }, payload) {
             commit('loadingMSG', true);
-            axios.get(`http://192.168.1.7:3333/search/${this.state.name}/${payload}/${this.state.actual_page*20}`)
+            axios.get(`http://192.168.1.7:3333/search/${payload}/${this.state.actual_page*20}`)
                 .then(response => {
-                    console.log(response.data.hits.total.value);
+                    console.log(response.data.hits.hits[0]._source["mail.from"]);
+
                     if(response.data.hits.total.value >= 100) {
                         commit('changeTotalMails', 100);
                     } else {
                         commit('changeTotalMails', response.data.hits.total.value);
                     } 
+
                     if(response.data.hits.total.value === 0) {
                         commit('changeTotalPages', 0);
                         commit('errorMSG', true)
@@ -75,13 +77,14 @@ const store = createStore({
                     }
 
                     commit('changeTotalPages', Math.ceil(this.state.total_mails/20));
+
                 const mailsLoaded = response.data.hits.hits.map((hit, index) => ({
                     id: index,
-                    from: hit._source.mail.from,
-                    subject: hit._source.mail.subject,
-                    body: hit._source.mail.body,
-                    to: hit._source.mail.to,
-                    category: hit._source.mail.category,
+                    from: hit._source["mail.from"],
+                    subject: hit._source["mail.subject"],
+                    body: hit._source["mail.body"],
+                    to: hit._source["mail.to"],
+                    category: hit._source["mail.category"],
                 }));
                 commit('loadMails', mailsLoaded);
                 commit('loadingMSG', false);

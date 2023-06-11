@@ -57,6 +57,9 @@ func main() {
 
 	zinc.AuthValues(username, password)
 
+	log.Println("\x1b[32;1mStarting indexer...\x1b[0m")
+	log.Println("Walking directory:", directoryToWalk)
+
 	// Todo: Make this concurrent
 	err = filepath.Walk(directoryToWalk, func(path string, info os.FileInfo, err error) error {
 		if err != nil {

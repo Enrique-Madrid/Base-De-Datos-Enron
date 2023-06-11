@@ -42,7 +42,10 @@ var jsonToIndex []byte = nil
 var IndexTemplate []byte = []byte("\n" + `{"index" : { "_index" : "enron_database"}}` + "\n")
 var jsonMail []byte
 
+var cant int = 0
+
 func CreateJSON(mail Mail) {
+	cant++
 	jsonMail, err := json.Marshal(
 		MailWithHeader{
 			Name:     mail.Name,
@@ -58,6 +61,13 @@ func CreateJSON(mail Mail) {
 	if err != nil {
 		log.Println("\033[31mError Marshaling:\033[0m", err)
 	}
+
+	if cant%1000 == 0 {
+		log.Println("\033[32mMail #:\033[0m", cant, "\033[32m indexed successfully\033[0m")
+		go Indexer(jsonToIndex)
+		jsonToIndex = nil
+	}
+
 }
 
 func SendJSON() {
@@ -90,12 +100,12 @@ func Indexer(json []byte) {
 	}
 }
 
-func Searcher(search_term string, index string, from string) []byte {
+func Searcher(search_term string, from string) []byte {
 	query := `{
 		"search_type": "matchphrase",
 		"query": {
-			"term": "` + index + `",
-			"field": "name"
+			"term": "` + search_term + `",
+			"field": "mail.body"
 		},
 		"sort_fields": [
 			"-@timestamp"
@@ -105,7 +115,6 @@ func Searcher(search_term string, index string, from string) []byte {
 				
 		"_source": []
     }`
-	log.Println(query)
 	req, err := http.NewRequest("POST", "http://localhost:4080/api/enron_database/_search", strings.NewReader(query))
 	if err != nil {
 		log.Fatal(err)
