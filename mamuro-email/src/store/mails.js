@@ -60,8 +60,6 @@ const store = createStore({
             commit('loadingMSG', true);
             axios.get(`http://192.168.1.7:3333/search/${payload}/${this.state.actual_page*20}`)
                 .then(response => {
-                    console.log(response.data.hits.hits[0]._source["mail.from"]);
-
                     if(response.data.hits.total.value >= 100) {
                         commit('changeTotalMails', 100);
                     } else {

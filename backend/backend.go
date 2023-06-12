@@ -33,7 +33,7 @@ func main() {
 	password := os.Getenv("ZINC_FIRST_ADMIN_PASSWORD")
 
 	if username == "" || password == "" {
-		log.Println("Error: Missing environment variables")
+		log.Fatal("Error: Missing environment variables")
 		return
 	}
 
@@ -60,9 +60,11 @@ func main() {
 			r.Get("/", searchHandler)
 		})
 	})
-	err := http.ListenAndServe("192.168.1.7:3333", r)
+
+	err := http.ListenAndServe(":3333", r)
+
 	if err != nil {
-		log.Println("\x1b[31;1mError starting server: \x1b[0m", err)
+		log.Fatal("\x1b[31;1mError starting backend: \x1b[0m", err)
 	}
 }
 

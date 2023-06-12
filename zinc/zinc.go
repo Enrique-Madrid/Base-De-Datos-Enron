@@ -75,7 +75,7 @@ func SendJSON() {
 }
 
 func Indexer(json []byte) {
-	req, err := http.NewRequest("POST", "http://localhost:4080/api/es/_bulk", strings.NewReader(string(json)))
+	req, err := http.NewRequest("POST", "http://192.168.1.7:4080/api/es/_bulk", strings.NewReader(string(json)))
 	if err != nil {
 		log.Println("\033[31mError:\033[0m", err)
 	}
@@ -115,7 +115,7 @@ func Searcher(search_term string, from string) []byte {
 				
 		"_source": []
     }`
-	req, err := http.NewRequest("POST", "http://localhost:4080/api/enron_database/_search", strings.NewReader(query))
+	req, err := http.NewRequest("POST", "http://192.168.1.7:4080/api/enron_database/_search", strings.NewReader(query))
 	if err != nil {
 		log.Fatal(err)
 	}
