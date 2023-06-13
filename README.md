@@ -23,7 +23,7 @@ This project is a web application created using Vue.js, Vuex, Golang, ZincSearch
 
 ### Usage
 
-1. To start the application, go to the run directory of the project using `cd run` in your terminal and then run `./mamuro -p <PORT>` to start the server. ('<PORT>' is the desired port to run the server). You should be able to see the application running by accessing `localhost:<PORT>` in your browser.
+1. To start the application, go to the run directory of the project using `cd run` in your terminal and then run `./mamuro -p <PORT> -d <PATH> (OPTIONAL)` to start the server. (`<PORT>` is the desired port to run the server and `<PATH>` is for the path for the web environment, by default is "../mamuro-email/dist"). You should be able to see the application running by accessing `localhost:<PORT>` in your browser,.
 2. To index the Enron email corpus, run first `cd indexer` and then `./indexer <PATH>` where `<PATH>` is the path to the directory containing the Enron email corpus.
 3. You can now start searching for emails using the search bar at the top of the application. You can search for emails by keyword or phrase, sender or recipient, and date range.
 4. The results of your search will be displayed on the page with email metadata, including sender, recipient and subject. You can read the content of each email by clicking on it.
