@@ -58,7 +58,7 @@ const store = createStore({
         },
         loadMails({ commit }, payload) {
             commit('loadingMSG', true);
-            axios.get(`http://192.168.1.7:3333/search/${payload}/${this.state.actual_page*20}`)
+            axios.get(`http://localhost:3333/search/${payload}/${this.state.actual_page*20}`)
                 .then(response => {
                     if(response.data.hits.total.value >= 100) {
                         commit('changeTotalMails', 100);
